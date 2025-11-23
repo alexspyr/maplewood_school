@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: maplewood-backend
+    ports:
+      - "8080:8080"
+    volumes:
+      # Mount the pre-populated SQLite database file (read-write for Flyway migrations)
+      # This uses the existing database with 400 students, 50 teachers, 57 courses, etc.
+      # Changes made in Docker will persist to the host file
+      - ./maplewood_school.sqlite:/app/maplewood_school.sqlite
+    environment:
+      # Database connection URL - points to the mounted pre-populated database
+      - SPRING_DATASOURCE_URL=jdbc:sqlite:/app/maplewood_school.sqlite
+      - SPRING_PROFILES_ACTIVE=prod
+    networks:
+      - maplewood-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_BASE_URL=http://localhost:8080/api
+    container_name: maplewood-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - maplewood-network
+
+networks:
+  maplewood-network:
+    driver: bridge
+

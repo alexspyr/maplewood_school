@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: maplewood-scheduling-system
+  
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:sqlite:../maplewood_school.sqlite}
+    driver-class-name: org.sqlite.JDBC
+  
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+        # SQLite-specific: Disable getGeneratedKeys() which SQLite JDBC doesn't support
+        # The SQLite dialect will use last_insert_rowid() instead
+        jdbc:
+          use_get_generated_keys: false
+          batch_size: 20
+        order_inserts: true
+        order_updates: true
+  
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 0
+
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
+
+logging:
+  level:
+    com.maplewood: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+
